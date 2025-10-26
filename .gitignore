@@ -1,0 +1,6 @@
+.env
+data/
+processed_data/
+vectorstore/
+__pycache__/
+*.pyc
