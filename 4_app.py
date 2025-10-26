@@ -9,8 +9,14 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 
-import os
-import streamlit as st
+import sys
+
+
+st.set_page_config(
+    page_title="Project Samarth - AgriClimate Q&A",
+    page_icon="🌾",
+    layout="wide"
+)
 
 VECTOR_FAISS_PATH = "vectorstore/index.faiss"
 VECTOR_PKL_PATH = "vectorstore/index.pkl"
@@ -19,15 +25,12 @@ if not (os.path.exists(VECTOR_FAISS_PATH) and os.path.exists(VECTOR_PKL_PATH)):
     st.warning(
         "❌ Vector database not found. Automatically downloading data, cleaning, and building the vectorstore now. This may take 3-8 minutes, just let it complete!"
     )
-    # Download the data
-    os.system("python 1_download_data.py")
-    # Clean/prepare the data
-    os.system("python 2_clean_data.py")
-    # Build the vectorstore
-    os.system("python 3_build_vectorstore.py")
+    os.system(f"{sys.executable} 1_download_data.py")
+    os.system(f"{sys.executable} 2_clean_data.py")
+    os.system(f"{sys.executable} 3_build_vectorstore.py")
     st.success("✅ Vector database built successfully! App is starting...")
 
-# After this block, continue with the rest of your Streamlit app logic/UI
+# ... rest of your app logic ...
 
 
 # Load API keys
