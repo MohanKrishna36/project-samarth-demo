@@ -1,7 +1,3 @@
-"""
-Step 4: Streamlit Chatbot App
-Simple Q&A interface for Project Samarth
-"""
 import os
 import sys
 import streamlit as st
@@ -10,27 +6,23 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-# Must be the first Streamlit command!
+# ONE place for set_page_config - at the very top after imports-only
 st.set_page_config(
     page_title="Project Samarth - AgriClimate Q&A",
     page_icon="🌾",
     layout="wide"
 )
 
-# Check for vectorstore and trigger pipeline if missing
+# Paths for checking vectorstore existence
 VECTOR_FAISS_PATH = "vectorstore/index.faiss"
 VECTOR_PKL_PATH = "vectorstore/index.pkl"
 if not (os.path.exists(VECTOR_FAISS_PATH) and os.path.exists(VECTOR_PKL_PATH)):
-    st.warning(
-        "❌ Vector database not found. Building now. This will run download, clean, and vectorstore creation scripts. Please wait 3–8 minutes..."
-    )
-    result1 = os.system(f"{sys.executable} 1_download_data.py")
-    result2 = os.system(f"{sys.executable} 2_clean_data.py")
-    result3 = os.system(f"{sys.executable} 3_build_vectorstore.py")
-    if all(x == 0 for x in [result1, result2, result3]):
-        st.success("✅ Vector database built successfully! App is starting...")
-    else:
-        st.error("⚠️ Error occurred building the vector database. Check logs and scripts.")
+    with st.spinner("First-time setup: Downloading, cleaning, and indexing data from data.gov.in. This may take several minutes..."):
+        result1 = os.system(f"{sys.executable} 1_download_data.py")
+        result2 = os.system(f"{sys.executable} 2_clean_data.py")
+        result3 = os.system(f"{sys.executable} 3_build_vectorstore.py")
+    if not (os.path.exists(VECTOR_FAISS_PATH) and os.path.exists(VECTOR_PKL_PATH)):
+        st.error("❌ Vector DB could not be built automatically. No data found or error occurred. Please check scripts and API key or report an issue.")
         st.stop()
 
 load_dotenv()
@@ -94,7 +86,7 @@ def main():
         return
 
     try:
-        with st.spinner("Loading AI system..."):
+        with st.spinner("Loading Q&A system..."):
             vectorstore = load_vectorstore()
         st.success("✅ System ready!")
     except Exception as e:
